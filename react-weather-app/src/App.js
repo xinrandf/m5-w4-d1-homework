@@ -1,30 +1,30 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import countries from 'i18n-iso-countries';
-import "bootstrap/dist/css/bootstrap.min.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTemperatureLow, faTemperatureHigh, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faTemperatureLow,
+  faTemperatureHigh,
+  faMapMarkerAlt
+} from '@fortawesome/free-solid-svg-icons';
 
 countries.registerLocale(require('i18n-iso-countries/langs/en.json'));
 
 function App() {
-  // State
   const [apiData, setApiData] = useState({});
   const [getState, setGetState] = useState('Irvine, USA');
   const [state, setState] = useState('Irvine, USA');
 
-  // API KEY AND URL
   const apiKey = process.env.REACT_APP_API_KEY;
   const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${state}&appid=${apiKey}`;
 
-  // Side effect
   useEffect(() => {
     fetch(apiUrl)
       .then((res) => res.json())
       .then((data) => setApiData(data));
   }, [apiUrl]);
 
-  // handlers
   const inputHandler = (event) => {
     setGetState(event.target.value);
   };
@@ -39,37 +39,62 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Weather App</h1>
+      <header className="d-flex justify-content-center align-items-center">
+        <h2>React Weather App</h2>
+      </header>
 
-      <input
-        type="text"
-        value={getState}
-        onChange={inputHandler}
-        placeholder="Enter location"
-      />
+      <div className="container">
+        <div className="mt-3 d-flex flex-column justify-content-center align-items-center">
+          <div className="col-auto">
+            <label htmlFor="location-name" className="col-form-label">
+              Enter Location :
+            </label>
+          </div>
 
-      <button onClick={submitHandler}>Search</button>
+          <div className="col-auto">
+            <input
+              type="text"
+              id="location-name"
+              className="form-control"
+              onChange={inputHandler}
+              value={getState}
+            />
+          </div>
 
-      <div>
-        <h2>
-          <FontAwesomeIcon icon={faMapMarkerAlt} /> {state}
-        </h2>
+          <div className="col-auto">
+            <button
+              className="btn btn-primary mt-2"
+              onClick={submitHandler}
+            >
+              Search
+            </button>
+          </div>
+        </div>
 
-        {apiData.main ? (
-          <>
-            <p>
-              <FontAwesomeIcon icon={faTemperatureLow} /> Low:{" "}
-              {kelvinToFarenheit(apiData.main.temp_min)} °F
-            </p>
-            <p>
-              <FontAwesomeIcon icon={faTemperatureHigh} /> High:{" "}
-              {kelvinToFarenheit(apiData.main.temp_max)} °F
-            </p>
-          </>
-        ) : (
-          <p>Loading...</p>
-        )}
+        <div className="card mt-3 mx-auto">
+          {apiData.main ? (
+            <div className="card-body text-center">
+              <h3>
+                <FontAwesomeIcon icon={faMapMarkerAlt} /> {state}
+              </h3>
+              <p>
+                <FontAwesomeIcon icon={faTemperatureLow} /> Low:{' '}
+                {kelvinToFarenheit(apiData.main.temp_min)} °F
+              </p>
+              <p>
+                <FontAwesomeIcon icon={faTemperatureHigh} /> High:{' '}
+                {kelvinToFarenheit(apiData.main.temp_max)} °F
+              </p>
+            </div>
+          ) : (
+            <h1>Loading...</h1>
+          )}
+        </div>
       </div>
+
+      <footer className="footer">
+        &copy; React Weather App
+      </footer>
     </div>
   );
 }
