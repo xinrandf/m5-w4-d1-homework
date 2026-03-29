@@ -6,15 +6,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faTemperatureLow,
   faTemperatureHigh,
-  faMapMarkerAlt
+  faMapMarkerAlt,
 } from '@fortawesome/free-solid-svg-icons';
 
 countries.registerLocale(require('i18n-iso-countries/langs/en.json'));
 
 function App() {
   const [apiData, setApiData] = useState({});
-  const [getState, setGetState] = useState('Irvine, USA');
-  const [state, setState] = useState('Irvine, USA');
+  const [getState, setGetState] = useState('Irvine,US');
+  const [state, setState] = useState('Irvine,US');
 
   const apiKey = process.env.REACT_APP_API_KEY;
   const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${state}&appid=${apiKey}`;
@@ -22,7 +22,13 @@ function App() {
   useEffect(() => {
     fetch(apiUrl)
       .then((res) => res.json())
-      .then((data) => setApiData(data));
+      .then((data) => {
+        console.log(data);
+        setApiData(data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }, [apiUrl]);
 
   const inputHandler = (event) => {
@@ -74,27 +80,71 @@ function App() {
         <div className="card mt-3 mx-auto">
           {apiData.main ? (
             <div className="card-body text-center">
-              <h3>
-                <FontAwesomeIcon icon={faMapMarkerAlt} /> {state}
-              </h3>
-              <p>
-                <FontAwesomeIcon icon={faTemperatureLow} /> Low:{' '}
-                {kelvinToFarenheit(apiData.main.temp_min)} °F
+              <img
+                src={`https://openweathermap.org/img/w/${apiData.weather[0].icon}.png`}
+                alt="weather status icon"
+                className="weather-icon"
+              />
+
+              <p className="h2">
+                {kelvinToFarenheit(apiData.main.temp)}&deg; F
               </p>
-              <p>
-                <FontAwesomeIcon icon={faTemperatureHigh} /> High:{' '}
-                {kelvinToFarenheit(apiData.main.temp_max)} °F
+
+              <p className="h5">
+                <FontAwesomeIcon
+                  icon={faMapMarkerAlt}
+                  className="fas fa-1x mr-2 text-dark"
+                />{' '}
+                <strong>{apiData.name}</strong>
               </p>
+
+              <div className="row mt-4">
+                <div className="col-md-6">
+                  <p>
+                    <FontAwesomeIcon
+                      icon={faTemperatureLow}
+                      className="fas fa-1x mr-2 text-primary"
+                    />{' '}
+                    <strong>
+                      {kelvinToFarenheit(apiData.main.temp_min)}&deg; F
+                    </strong>
+                  </p>
+
+                  <p>
+                    <FontAwesomeIcon
+                      icon={faTemperatureHigh}
+                      className="fas fa-1x mr-2 text-danger"
+                    />{' '}
+                    <strong>
+                      {kelvinToFarenheit(apiData.main.temp_max)}&deg; F
+                    </strong>
+                  </p>
+                </div>
+
+                <div className="col-md-6">
+                  <p>
+                    <strong>{apiData.weather[0].main}</strong>
+                  </p>
+
+                  <p>
+                    <strong>
+                      {countries.getName(apiData.sys.country, 'en', {
+                        select: 'official',
+                      })}
+                    </strong>
+                  </p>
+                </div>
+              </div>
             </div>
+          ) : apiData.message ? (
+            <h3 className="text-center p-4">{apiData.message}</h3>
           ) : (
-            <h1>Loading...</h1>
+            <h1 className="text-center p-4">Loading...</h1>
           )}
         </div>
       </div>
 
-      <footer className="footer">
-        &copy; React Weather App
-      </footer>
+      <footer className="footer">&copy; React Weather App</footer>
     </div>
   );
 }
